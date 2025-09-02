@@ -1,11 +1,25 @@
 "use client";
 import Link from "next/link";
 import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/components";
+import { useState, useRef, useEffect } from "react";
+import { Button, UserProfile } from "@/components";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfile(false);
+      }
+    }
+    if (showProfile) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showProfile]);
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -34,7 +48,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-4 ml-8">
+        <div className="flex items-center space-x-4 ml-8 relative">
           <Button className="relative" variant="secondary">
             <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-blue-600" />
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -42,9 +56,15 @@ export default function Navbar() {
             </span>
           </Button>
 
-          <Button variant="secondary">
+          <Button variant="secondary" onClick={() => setShowProfile(!showProfile)}>
             <User className="w-6 h-6 text-gray-700 hover:text-blue-600" />
           </Button>
+
+          {showProfile && (
+            <div ref={profileRef} className="absolute right-0 top-14 w-80">
+              <UserProfile />
+            </div>
+          )}
 
           <button
             className="md:hidden"
